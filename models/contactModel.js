@@ -1,53 +1,42 @@
 import { Schema, model } from "mongoose";
-import validate from "mongoose-validator";
+
 import Joi from "joi";
 import { handleMongooseError } from "../utils/handleMongooseError.js";
+import { isLength, isNumeric } from "validator";
 
 const numberTypeList = ["home", "work", "friend"];
 const birthDateRegExp = /^\d{2}-\d{2}-\d{4}$/;
-
 // Regular expression:
 // - at least 1 domain after "@"
 // - at least 2 symbols after the last period
 const emailRegExp = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})*$/;
 
-const emailValidator_v1 = validate({
-  validator: "isEmail", // Buit-in validator of mongoose-validator for emails
-  message: "Invalid email format",
-});
-
-const emailValidator_v2 = validate({
-  validator: function (value) {
-    const regex = emailRegExp;
-    return regex.test(value);
-  },
-  message:
-    "Invalid email format. Ensure at least one domain after @ and at least 2 characters after the last dot.",
-});
-
-//* Mongoose-schema - validate data before for save it in db
+//^ Mongoose-schema - validate data before for save it in db
 const mongooseContactSchema = new Schema(
   {
     name: {
       type: String,
-      required: true,
-      minlength: 3,
-      maxlength: 30,
+      required: [true, "Name i required"],
+      minlength: [3, "Name must be at least 3 characters"],
+      maxlength: [30, "Name must be not exceed 30 characters"],
     },
     email: {
       type: String,
-      required: true,
-      validate: emailValidator_v2,
+      required: [true, "Name is required"],
+      validate: {
+        // validator: value => isEmail(value), // Built-in in validator.js check for email
+        validator: value => emailRegExp.test(value),
+        message:
+          "Invalid email format. Ensure at least one domain after @ and at least 2 characters after the last dot",
+      },
     },
     phone: {
       type: String,
       required: true,
-      validate: validate({
-        validator: String,
-        // validator: "isNumeric", // Built-in numeric check
-        arguments: [10, 15], // min and max length of number
-        message: "Phone number must be numeric and 10-15 characters long",
-      }),
+      validate: {
+        validator: value => isLength(value, { min: 10, max: 15 }),
+        message: "Phone must be 10-15 characters long",
+      },
     },
     favorite: {
       type: Boolean, // boolean type of value
@@ -55,12 +44,11 @@ const mongooseContactSchema = new Schema(
     },
     number_type: {
       type: Schema.Types.Mixed, // Allows string or numbers types,
-      enum: numberTypeList, // array of possible values
+      enum: [numberTypeList, "Current value for number_type is not valid"], // array of possible values
       // or:
       // enum: {
       //   values: numberTypeList,
-      //   // message: "Current value for number_type is not valid", // in error case
-      //   required: true,
+      //   message: "Current value for number_type is not valid", // in error case
       // },
       required: true,
     },
@@ -72,27 +60,6 @@ const mongooseContactSchema = new Schema(
   { versionKey: false, timestamps: true },
 );
 
-const mongooseContactSchema_v2 = new Schema({
-  name: {
-    type: String,
-    required: true,
-    minlength: 3,
-    maxlength: 30,
-    match: /^[a-zA-Z0-9-_]+$/, // equivalent to Joi.alphanum()
-  },
-  email: {
-    type: String,
-    required: true,
-    // match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, // equivalent to Joi.email()
-    match: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, // equivalent to Joi.email() + require 2 symbols after last dot.
-    match: /^[^\s@]+@[^\s@]+\.[^\s@]+(\.[^\s@]+)*$/, // equivalent to Joi.email() + require 2 segments after "@"
-  },
-  phone: {
-    type: Schema.Types.Mixed, // Allows string or numbers types
-    required: true,
-  },
-});
-
 // ! Middleware for errors of mongoose schema:
 // Mongoose throws errors without status. If status not presented, will be error.status = 500, because in case of error, tryCatchDecorator() will catch it and invokes next(error). The next with error argument will invoke app.use((err, req, res, next) in app.js and set status = 500. But error of body validation is not 500 status (Internal Server Error), but must be 400 status (Bad request). Therefore you should set status=400 in additional middleware.
 // The next middleware will works when will be error from any of Mongoose-schema methods (.find(), .create(), etc).
@@ -101,7 +68,7 @@ mongooseContactSchema.post("save", handleMongooseError);
 
 const Contact = model("contact", mongooseContactSchema); // Creating mongoose model (schema)
 
-//* Joi-schema - validate data that comes from frontend
+//^ Joi-schema - validate data that comes from frontend
 // Joi and Mongoose schemas works together. Joi-schema verifying incoming data, Mongoose-schema verifying data that you want to save in database.
 // For example incoming data of date can be in format "YYYY-MM-DD", but in database format should be in format "DD-MM-YYYY". So after incoming data you should to formatting it in right format before note it in database.
 

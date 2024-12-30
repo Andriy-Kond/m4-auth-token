@@ -2,6 +2,7 @@ import express from "express";
 import logger from "morgan"; // outputs to console request info
 import cors from "cors";
 import { contactsRouter } from "./routes/api/contactsRouter.js";
+import { authRouter } from "./routes/api/auth.js";
 
 //% Time to time access to process.env not in all project. Maybe moving these rows from server.js to app.js may help (but it is not certain):
 // // require("dotenv").config();
@@ -23,6 +24,7 @@ app.use(cors());
 app.use(express.json()); // Checks if exist body in each request. If exist, it checks type by header "Content-Type". If Content-Type === "application/json, this middleware convert it from string to object (by JSON.parse())
 
 app.use("/api/contacts", contactsRouter); // use contactsRouter methods if request on "/api/contacts" route
+app.use("/api/auth", authRouter);
 
 app.use("/", (req, res, next) => {
   res.status(404).json({ message: "Not found route" });
