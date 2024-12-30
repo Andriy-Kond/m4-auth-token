@@ -2,7 +2,9 @@ import { Schema, model } from "mongoose";
 
 import Joi from "joi";
 import { handleMongooseError } from "../utils/handleMongooseError.js";
-import { isLength, isNumeric } from "validator";
+import validator from "validator";
+
+const { isLength } = validator;
 
 const numberTypeList = ["home", "work", "friend"];
 const birthDateRegExp = /^\d{2}-\d{2}-\d{4}$/;
@@ -66,9 +68,9 @@ const mongooseContactSchema = new Schema(
 mongooseContactSchema.post("save", handleMongooseError);
 // This fn will be the same for each schemas of Mongoose. Therefore you should to move this fn to isolated file (to helpers/utils)
 
-const Contact = model("contact", mongooseContactSchema); // Creating mongoose model (schema)
+export const Contact = model("contact", mongooseContactSchema); // Creating mongoose model (schema)
 
-//^ Joi-schema - validate data that comes from frontend
+//^ Joi-schemas - validate data that comes from the frontend
 // Joi and Mongoose schemas works together. Joi-schema verifying incoming data, Mongoose-schema verifying data that you want to save in database.
 // For example incoming data of date can be in format "YYYY-MM-DD", but in database format should be in format "DD-MM-YYYY". So after incoming data you should to formatting it in right format before note it in database.
 
@@ -99,9 +101,7 @@ const editFavorite = Joi.object({
   favorite: Joi.boolean().required(),
 });
 
-const joiSchemas = {
+export const joiContactSchemas = {
   addContact,
   editFavorite,
 };
-
-export { joiSchemas, Contact };

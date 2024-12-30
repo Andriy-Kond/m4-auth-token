@@ -16,6 +16,7 @@ const emailValidator = validate({
     "Invalid email format. Ensure at least one domain after @ and at least 2 characters after the last dot.",
 });
 
+//^ Mongoose-schema - validate data before for save it in db
 const mongooseUserSchema = new Schema({
   name: {
     type: String,
@@ -38,11 +39,12 @@ const mongooseUserSchema = new Schema({
   },
 });
 
+// ! Middleware for errors of mongoose schema:
 mongooseUserSchema.post("save", handleMongooseError);
 
 export const User = model("user", mongooseUserSchema);
 
-//^ Joi-schema - validates data coming from the frontend
+//^ Joi-schemas - validates data coming from the frontend
 const registerUser = Joi.object({
   name: Joi.string().alphanum().min(3).max(30).required(),
   email: Joi.string().pattern(emailRegExp).required(),
