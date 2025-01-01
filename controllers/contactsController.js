@@ -14,8 +14,8 @@ const getContacts = async (req, res, next) => {
 
 const getContactById = async (req, res, next) => {
   //^ Method .findOne() returns first match or null
-  const contact = await Contact.findOne({ _id: req.params.id }); // return first match where _id === req.params.id. Used for search by any field except id.
-  const contact2 = await Contact.findById(req.params.id); // Used for search by field _id
+  const contact = await Contact.findOne({ _id: req.params.id }); // Returns first match where _id === req.params.id. Used for search by any field except id.
+  const contact2 = await Contact.findById(req.params.id); // Used when you want to search by field "_id"
 
   // When _id have right format, but that _id not in db, the .findById() returns "null", and you'll get status 404, because check "if (!contact)..." will return "false".
   // When _id format will be wrong you'll get this error (because "contact" will be "true":
