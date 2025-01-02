@@ -2,6 +2,10 @@ import { User } from "../models/userModel.js";
 import { HttpError } from "../utils/HttpError.js";
 import { tryCatchDecorator } from "../utils/tryCatchDecorator.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import "dotenv/config"; // must be imported in each place where you get any keys from process.env
+
+const { SECRET_KEY = "" } = process.env;
 
 const register = async (req, res, next) => {
   //~ Adding custom error message for 409 status when you validate uniq field (for example "email")
@@ -44,8 +48,10 @@ const login = async (req, res, next) => {
     });
   }
 
-  // send token
-  const token = "klajsdflkjsalkdfj.asldkfjlsakfdj.sjalkdfjsalkdf";
+  // Create and send token
+  const payload = { id: user._id };
+  const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "23h" });
+  console.log("login >> token:::", token);
   res.json({ token });
 };
 
