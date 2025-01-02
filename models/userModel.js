@@ -19,8 +19,8 @@ const emailValidator = {
 };
 
 const passwordValidator = {
-  validator: value => isLength(value, { min: 3, max: 15 }),
-  message: "Password must be 3-15 characters long",
+  validator: value => isLength(value, { min: 3, max: 150 }),
+  message: "Password must be 3-150 characters long",
 };
 
 //^ Mongoose-schema - validate data before for save it in db

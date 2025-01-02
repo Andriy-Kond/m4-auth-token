@@ -12,8 +12,12 @@ export const authRouter = express.Router();
 authRouter.post(
   "/register",
   checkErrorJoiSchemaDecorator(joiUserSchemas.registerUser), // check by User model
-  authController.registration, // register new user
+  authController.register, // register new user
 );
 
 // login
-authRouter.post("/login");
+authRouter.post(
+  "/login",
+  checkErrorJoiSchemaDecorator(joiUserSchemas.loginUser), // check by User model
+  authController.login, // register new user
+);
