@@ -31,8 +31,16 @@ const getContactById = async (req, res, next) => {
 };
 
 const addContact = async (req, res, next) => {
+  // console.log("addContact >> req:::", req.user);
+  // console.log("addContact >> req.user:::", req.user); // Object user was added in middleware authenticate.js
+
+  console.log("{ ...req.body, owner: req.user._id } :>> ", {
+    ...req.body,
+    owner: req.user,
+  });
+
   //^ Method .create()
-  const newContact = await Contact.create(req.body);
+  const newContact = await Contact.create({ ...req.body, owner: req.user });
   res.status(201).json(newContact);
 };
 

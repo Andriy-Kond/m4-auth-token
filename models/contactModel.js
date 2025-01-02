@@ -58,7 +58,13 @@ const mongooseContactSchema = new Schema(
       type: String,
       match: birthDateRegExp, // 25-08-1978
     },
+    owner: {
+      type: Schema.Types.ObjectId, // Special data type for id in MongoDB database
+      ref: "user", // indicates from which collection this id
+      required: true,
+    },
   },
+
   { versionKey: false, timestamps: true },
 );
 
