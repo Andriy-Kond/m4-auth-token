@@ -4,11 +4,16 @@ import { tryCatchDecorator } from "../utils/tryCatchDecorator.js";
 
 const getContacts = async (req, res, next) => {
   //^ Method .find() always returns array.
-  const contacts = await Contact.find(); // Finds all items in collection
+  const contacts1 = await Contact.find(); // Finds all items in collection
   const contacts2 = await Contact.find({ name: "Andrii8" }); // Will search for an exact match: will find "Andrii8", but not "Andrii" (will return empty array).
   const contacts3 = await Contact.find({}, "name email"); // Returns fields "_id", "name" and "email" only.
   const contacts4 = await Contact.find({}, "-name -email"); // Returns all fields except "name" and "email"
+  console.log("getContacts >> req.owner:::", req.owner);
 
+  const contacts = await Contact.find(
+    { owner: req.owner },
+    "-createdAt -updatedAt",
+  ); // Finds items of current owner
   res.json(contacts);
 };
 
@@ -31,16 +36,11 @@ const getContactById = async (req, res, next) => {
 };
 
 const addContact = async (req, res, next) => {
-  // console.log("addContact >> req:::", req.user);
-  // console.log("addContact >> req.user:::", req.user); // Object user was added in middleware authenticate.js
-
-  console.log("{ ...req.body, owner: req.user._id } :>> ", {
-    ...req.body,
-    owner: req.user,
-  });
-
   //^ Method .create()
-  const newContact = await Contact.create({ ...req.body, owner: req.user });
+  const newContact = await Contact.create({
+    ...req.body,
+    owner: req.owner,
+  });
   res.status(201).json(newContact);
 };
 

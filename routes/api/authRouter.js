@@ -8,7 +8,6 @@ export const authRouter = express.Router();
 // * local middlewares "checkErrorJoiSchemaDecorator" checks by model for each request where you receive data:
 
 // signup
-// ??? authRouter.get("/register");
 authRouter.post(
   "/register",
   checkErrorJoiSchemaDecorator(joiUserSchemas.registerUser), // check by User model
