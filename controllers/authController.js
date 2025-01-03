@@ -51,7 +51,9 @@ const login = async (req, res, next) => {
   // Create and send token
   const payload = { id: user._id };
   const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "23h" });
-  console.log("login >> token:::", token);
+  // console.log("login >> token:::", token);
+  await User.findByIdAndUpdate(user._id, { token });
+
   res.json({ token });
 };
 
@@ -61,8 +63,17 @@ const getCurrentUser = (req, res, next) => {
   res.json({ email, name });
 };
 
+// Check whether token is still valid and send name&email
+const logout = async (req, res, next) => {
+  const { _id } = req.user;
+  await User.findByIdAndUpdate(_id, { token: "" });
+
+  res.json({ message: "Logout success" });
+};
+
 export const authController = {
   register: tryCatchDecorator(register),
   login: tryCatchDecorator(login),
   getCurrentUser: tryCatchDecorator(getCurrentUser), // can be without tryCatchDecorator
+  logout: tryCatchDecorator(logout),
 };

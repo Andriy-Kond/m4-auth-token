@@ -54,6 +54,10 @@ const mongooseUserSchema = new Schema(
       required: [true, "Password is required"],
       validate: passwordValidator,
     },
+    token: {
+      type: String,
+      default: "",
+    },
   },
   { versionKey: false, timestamps: true },
 );

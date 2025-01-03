@@ -7,11 +7,7 @@ const { SECRET_KEY } = process.env;
 
 export const authenticate = async (req, res, next) => {
   const { authorization = "" } = req.headers;
-  // console.log("authenticate >> Authorization:::", authorization);
-
   const [bearer, token] = authorization.split(" ");
-  // console.log("authenticate >> bearer:::", bearer);
-  // console.log("authenticate >> token:::", token);
 
   if (bearer !== "Bearer") {
     next(HttpError({ status: 401, message: "Unauthorized" }));
@@ -24,14 +20,15 @@ export const authenticate = async (req, res, next) => {
 
     const user = await User.findById(payload.id);
 
-    if (!user) next(HttpError({ status: 401, message: "User not found" }));
+    if (!user || !user.token || user.token !== token)
+      // next(HttpError({ status: 401, message: "User not found" }));
+      next(HttpError({ status: 401 }));
 
     // Object "req" is one for one request. For example for request contactsRouter.post("/", authenticate, checkErrorJoiSchemaDecorator(joiContactSchemas.addContact), contactsController.addContact) it will be ths same in authenticate, checkErrorJoiSchemaDecorator and contactsController.
     req.user = user; // For adding identification of this user in contactController.addContact() or other places
 
     next();
   } catch (err) {
-    // console.log("authenticate >> err:::", err);
     // authenticate >> err::: JsonWebTokenError: invalid signature
     next(HttpError({ status: 401 }));
   }

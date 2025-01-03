@@ -28,3 +28,10 @@ authRouter.get(
   authenticate, // checks whether token is correct
   authController.getCurrentUser, // check whether token is still valid
 );
+
+// logout
+authRouter.post(
+  "/logout",
+  authenticate, // checks if user is logged in
+  authController.logout, // check whether token is still valid
+);
