@@ -8,12 +8,20 @@ const getContacts = async (req, res, next) => {
   const contacts2 = await Contact.find({ name: "Andrii8" }); // Will search for an exact match: will find "Andrii8", but not "Andrii" (will return empty array).
   const contacts3 = await Contact.find({}, "name email"); // Returns fields "_id", "name" and "email" only.
   const contacts4 = await Contact.find({}, "-name -email"); // Returns all fields except "name" and "email"
-  console.log("getContacts >> req.owner:::", req.owner);
 
+  const { _id: owner } = req.user._conditions;
+
+  //~ If necessary insert only id to field "owner":
+  // const contacts = await Contact.find({ owner }, "-createdAt -updatedAt"); // Finds items of current owner
+
+  //~ If necessary insert detailed info of user to field "owner" (for example, to avoid making multiple queries to the database):
   const contacts = await Contact.find(
-    { owner: req.owner },
+    { owner },
     "-createdAt -updatedAt",
-  ); // Finds items of current owner
+  ).populate("owner", "name email");
+  // will go to mongoose model "contactModel", will find field owner, will take id from field "type" (Schema.Types.ObjectId), will find collection in ref ("user"), will find object with  id from Schema.Types.ObjectId in collection "user", and insert this object to field "owner".
+  // Second argument tells what fields needs to insert (name and email). Without this option will return full object with all fields.
+
   res.json(contacts);
 };
 
