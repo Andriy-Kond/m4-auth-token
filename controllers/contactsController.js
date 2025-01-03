@@ -15,12 +15,17 @@ const getContacts = async (req, res, next) => {
   // const contacts = await Contact.find({ owner }, "-createdAt -updatedAt"); // Finds items of current owner
 
   //~ If necessary insert detailed info of user to field "owner" (for example, to avoid making multiple queries to the database):
-  const contacts = await Contact.find(
-    { owner },
-    "-createdAt -updatedAt",
-  ).populate("owner", "name email");
+
+  // req.query contains search params (for example, page and limit for pagination)
+  const { page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
+  const contacts = await Contact.find({ owner }, "-createdAt -updatedAt", {
+    skip,
+    limit,
+  }).populate("owner", "name email");
   // will go to mongoose model "contactModel", will find field owner, will take id from field "type" (Schema.Types.ObjectId), will find collection in ref ("user"), will find object with  id from Schema.Types.ObjectId in collection "user", and insert this object to field "owner".
   // Second argument tells what fields needs to insert (name and email). Without this option will return full object with all fields.
+  // Third argument - settings object. Mongoose contains built-in pagination system: skip - how many entities need to be skipped from beginning of the database, limit - how many entities need to return
 
   res.json(contacts);
 };
