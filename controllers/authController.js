@@ -55,7 +55,14 @@ const login = async (req, res, next) => {
   res.json({ token });
 };
 
+// Check whether token is still valid and send name&email
+const getCurrentUser = (req, res, next) => {
+  const { email, name } = req.user;
+  res.json({ email, name });
+};
+
 export const authController = {
   register: tryCatchDecorator(register),
   login: tryCatchDecorator(login),
+  getCurrentUser: tryCatchDecorator(getCurrentUser), // can be without tryCatchDecorator
 };

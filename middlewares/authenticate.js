@@ -5,7 +5,7 @@ import { User } from "../models/userModel.js";
 
 const { SECRET_KEY } = process.env;
 
-export const authenticate = (req, res, next) => {
+export const authenticate = async (req, res, next) => {
   const { authorization = "" } = req.headers;
   // console.log("authenticate >> Authorization:::", authorization);
 
@@ -22,7 +22,7 @@ export const authenticate = (req, res, next) => {
     // console.log("authenticate >> payload:::", payload);
     // // payload::: { id: '67765f1b21b8debb7ed21cb6', iat: 1735834786, exp: 1735917586 }
 
-    const user = User.findById(payload.id);
+    const user = await User.findById(payload.id);
 
     if (!user) next(HttpError({ status: 401, message: "User not found" }));
 

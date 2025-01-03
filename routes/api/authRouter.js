@@ -2,6 +2,7 @@ import express from "express";
 import { checkErrorJoiSchemaDecorator } from "../../middlewares/checkErrorJoiSchemaDecorator.js";
 import { joiUserSchemas } from "../../models/userModel.js";
 import { authController } from "../../controllers/authController.js";
+import { authenticate } from "../../middlewares/authenticate.js";
 
 export const authRouter = express.Router();
 
@@ -19,4 +20,11 @@ authRouter.post(
   "/login",
   checkErrorJoiSchemaDecorator(joiUserSchemas.loginUser), // check by User model
   authController.login, // register new user
+);
+
+// take token from .../current
+authRouter.get(
+  "/current",
+  authenticate, // checks whether token is correct
+  authController.getCurrentUser, // check whether token is still valid
 );
